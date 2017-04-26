@@ -1,8 +1,14 @@
 #' Permutation test for local and global association measures
 #'
-#' Permutation test: statistical significance of local and global association measures
+#' Permutation test: statistical significance of local and
+#' global association measures
 #'
 #' @param x \code{\link[zebu]{lassie}} S3 object.
+#'
+#' @param group list of column names specifying which columns
+#' should be permuted together. This is useful for the multivariate case,
+#' for example, when there is many dependant variables and one
+#' independant variable. By default, permutes all columns separetely.
 #'
 #' @param nb number of resampling iterations.
 #'
@@ -10,10 +16,16 @@
 #' (see \code{\link[stats]{p.adjust.methods}} for a list of methods).
 #'
 #' @param parallel logical specifying if resampling should be parallelized.
-#' Relies on \link[parallel]{mcmapply} and hence is not available on Windows.
+#' Relies on \code{\link[foreach]{foreach}} and \code{doParallel}.
+#'
+#' @param progress_bar logical specifying if progress bar should be displayed. Does not work if parallel resampling is used.
+#'
+#' @param ncpus \code{integer} specifying number of processes to be used in
+#' parallel operation.
 #'
 #' @return \code{permtest} returns an S3 object of \link[base]{class}
-#' \code{\link[zebu]{lassie}} and \code{\link[zebu]{permtest}}. Adds the following to the lassie object \code{x}:
+#' \code{\link[zebu]{lassie}} and \code{\link[zebu]{permtest}}.
+#' Adds the following to the lassie object \code{x}:
 #' \itemize{
 #' \item global_p: global association p-value.
 #' \item local_p: array of local association p-values.
@@ -34,22 +46,29 @@
 #' @export
 #'
 permtest <- function(x,
-                     nb = 1000,
+                     group = as.list(colnames(x$data$pp)),
+                     nb = 1000L,
                      p_adjust = "BH",
-                     parallel = TRUE) {
+                     parallel = FALSE,
+                     progress_bar = FALSE,
+                     ncpus = getOption("zebu.ncpus", 2L)) {
 
   # Local functions ----
   # Permutation
-  compute_perm <- function(i) {
+  compute_perm <- function() {
     # Permute data.frame
-    perm <- apply(x$data$pp, 2, sample)
+    nr <- nrow(df)
+    perm <- do.call(cbind, lapply(group, function(j) {
+      i <- sample(seq_len(nr))
+      df[i, j, drop = FALSE]
+    }))
 
     # Compute association measures
     prob <- zebu::estimate_prob(perm)
     lam <- zebu::local_association(prob, measure)
 
     # Global is first row, all other rows are local association values
-    c(lam$global, lam$local)
+    c(global = lam$global, local = lam$local)
   }
 
   # Estimate p-value by intersecting with values obtained with permutated datasets
@@ -73,18 +92,53 @@ permtest <- function(x,
     stop(paste("Invalid 'p_adjust' argument: methods supported are", stats::p.adjust.methods))
   }
 
+  if (! is.list(group)) {
+    stop("Invalid 'group' argument: must be a list of characters that correspond to colnames.")
+  }
+
   # Compute general variables ----
+  df <- x$data$pp
   observed <- x$prob$observed  # Observed multivariate probability
   dimensions <- dim(observed)  # Dimensions
   dim_names <- dimnames(observed)  # Dimension names
   measure <- x$lassie_params[["measure"]]  # Get association measure used
   perm_params <- list(nb = nb, p_adjust = p_adjust) # Save parameters in list
 
+  # Convert group argument integers to characters refering to colnames
+  if (any(! unlist(group) %in% colnames(df))) {
+    stop("Invalid 'group' argument: must be a list of characters that correspond colnames.")
+  }
   # Resampling ----
+  i <- 0L
+  iterator <- iterators::icount(nb)
+  foreacher <- foreach::foreach(i = iterator, .combine = rbind)
+  expr <- {compute_perm()}
+
+  if (progress_bar) {
+    pb <- utils::txtProgressBar(min = 0L, max = nb, style = 3L)
+    progress <- function(i) utils::setTxtProgressBar(pb, i)
+    on.exit(close(pb), add = TRUE)
+  }
+
   if (parallel) {
-    permutations <- parallel::mcmapply(compute_perm, 1:nb)
+    doer <-  foreach::`%dopar%`
+    cl <- parallel::makeCluster(ncpus)
+    doParallel::registerDoParallel(cl)
+    on.exit(parallel::stopCluster(cl))
+
+    if (progress_bar) {
+      foreacher <- foreach::foreach(i = iterator, .combine = rbind)
+    }
+    permutations <- doer(foreacher, expr)
+
   } else {
-    permutations <- pbapply::pbsapply(1:nb, compute_perm)
+    doer <-  foreach::`%do%`
+
+    if (progress_bar) {
+      permutations <- doer(foreacher, {utils::setTxtProgressBar(pb, i); compute_perm()})
+    } else {
+      permutations <- doer(foreacher, expr)
+    }
   }
   permutations <- t(permutations)
 

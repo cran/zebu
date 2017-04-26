@@ -4,10 +4,17 @@
 \alias{permtest}
 \title{Permutation test for local and global association measures}
 \usage{
-permtest(x, nb = 1000, p_adjust = "BH", parallel = TRUE)
+permtest(x, group = as.list(colnames(x$data$pp)), nb = 1000L,
+  p_adjust = "BH", parallel = FALSE, progress_bar = FALSE,
+  ncpus = getOption("zebu.ncpus", 2L))
 }
 \arguments{
 \item{x}{\code{\link[zebu]{lassie}} S3 object.}
+
+\item{group}{list of column names specifying which columns
+should be permuted together. This is useful for the multivariate case,
+for example, when there is many dependant variables and one
+independant variable. By default, permutes all columns separetely.}
 
 \item{nb}{number of resampling iterations.}
 
@@ -15,11 +22,17 @@ permtest(x, nb = 1000, p_adjust = "BH", parallel = TRUE)
 (see \code{\link[stats]{p.adjust.methods}} for a list of methods).}
 
 \item{parallel}{logical specifying if resampling should be parallelized.
-Relies on \link[parallel]{mcmapply} and hence is not available on Windows.}
+Relies on \code{\link[foreach]{foreach}} and \code{doParallel}.}
+
+\item{progress_bar}{logical specifying if progress bar should be displayed. Does not work if parallel resampling is used.}
+
+\item{ncpus}{\code{integer} specifying number of processes to be used in
+parallel operation.}
 }
 \value{
 \code{permtest} returns an S3 object of \link[base]{class}
-\code{\link[zebu]{lassie}} and \code{\link[zebu]{permtest}}. Adds the following to the lassie object \code{x}:
+\code{\link[zebu]{lassie}} and \code{\link[zebu]{permtest}}.
+Adds the following to the lassie object \code{x}:
 \itemize{
 \item global_p: global association p-value.
 \item local_p: array of local association p-values.
@@ -29,7 +42,8 @@ Relies on \link[parallel]{mcmapply} and hence is not available on Windows.}
 }
 }
 \description{
-Permutation test: statistical significance of local and global association measures
+Permutation test: statistical significance of local and
+global association measures
 }
 \examples{
 # Calling lassie on cars dataset
@@ -42,4 +56,3 @@ permtest(las)
 \seealso{
 \code{\link[zebu]{lassie}}
 }
-
