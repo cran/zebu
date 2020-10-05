@@ -1,7 +1,7 @@
 #' @title Local Association Measures
 #'
 #' @description Estimates local (and global) association measures: Ducher's Z and pointwise mutual
-#' information and normalized pointwise mutual information.
+#' information, normalized pointwise mutual information and chi-squared residuals.
 #'
 #' @inheritParams preprocess
 #' @inheritParams local_association
@@ -72,14 +72,8 @@
 #' # Plot results as heatmap
 #' plot(las)
 #'
-#' # Plot observed probabilities using different colours
+#' # Plot observed probabilities using different colors
 #' plot(las, what_x = 'obs', low = 'white', mid = 'grey', high = 'black', text_colour = 'red')
-#'
-#' # Write results to text file
-#' write.lassie(las, file = 'test.csv')
-#'
-#' # Retrieve results
-#' lassie_df <- read.table('test.csv', sep = ',', header = TRUE)
 #'
 #' @export
 #'
@@ -101,7 +95,8 @@ lassie <- function(x,
   prob <- estimate_prob(pre$pp)
 
   # Compute local and global association
-  lam <- local_association(prob, measure)
+  nr <- nrow(x)
+  lam <- local_association(prob, measure, nr)
   global <- lam$global
   local <- lam$local
 
@@ -416,7 +411,7 @@ plot.lassie <- function(x,
   axis_labels <- names(dimnames(tile_value))
 
   # Make title
-  title <- paste0(measure_name(x), "\n", round(x$global, digits))
+  title <- paste0(measure_name(x), "\nGlobal: ", round(x$global, digits))
 
   if (! is.null(x$global_p)) {
     global_p <- x$global_p

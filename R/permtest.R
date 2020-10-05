@@ -7,8 +7,8 @@
 #'
 #' @param group list of column names specifying which columns
 #' should be permuted together. This is useful for the multivariate case,
-#' for example, when there is many dependant variables and one
-#' independant variable. By default, permutes all columns separetely.
+#' for example, when there is many dependent variables and one
+#' independent variable. By default, permutes all columns separately.
 #'
 #' @param nb number of resampling iterations.
 #'
@@ -31,11 +31,12 @@
 #' @seealso \code{\link[zebu]{lassie}}
 #'
 #' @examples
+#'
 #' # Calling lassie on cars dataset
 #' las <- lassie(cars)
 #'
 #' # Permutation test using default settings
-#' permtest(las)
+#' permtest(las, nb = 30) # keep resampling low for example
 #'
 #' @export
 #'
@@ -58,7 +59,7 @@ permtest <- function(x,
 
     # Compute association measures
     prob <- zebu::estimate_prob(perm)
-    lam <- zebu::local_association(prob, measure)
+    lam <- zebu::local_association(prob, measure, nr)
 
     # Global is first row, all other rows are local association values
     c(global = lam$global, local = lam$local)

@@ -4,7 +4,7 @@
 
 The `zebu` R package implements different tools related to local association measures in three main functions. It replaces the previous web application written using `shiny`.
 
-- `lassie` estimates local (and global) association measures: Ducher's Z, pointwise mutual information and normalized pointwise mutual information.
+- `lassie` estimates local (and global) association measures: Ducher's Z, pointwise mutual information, normalized pointwise mutual information and chi-squared residuals.
 
 - `permtest` accesses the significance of local (and global) association values using p-values estimated by permutations.
 
@@ -12,7 +12,7 @@ The `zebu` R package implements different tools related to local association mea
 
 ## Installation
 
-Install [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/).
+Install [R](https://www.r-project.org/) and [RStudio](https://rstudio.com/).
 
 Get the released version from CRAN:
 ```R
@@ -28,12 +28,16 @@ devtools::install_github("oliviermfmartin/zebu")
 
 ## Usage and Theory
 
-Please read the [vignette](http://cdn.rawgit.com/oliviermfmartin/zebu/master/inst/doc/zebu.html).
+Please read the vignette.
+
+```R
+vignette("zebu")
+```
 
 ## Contact
 
 * Olivier Martin
-[oliviermfmartin@gmail.com](mailto:oliviermfmartin@gmail.com)
+[oliviermfmartin@tutanota.com](mailto:oliviermfmartin@tutanota.com)
 
 * Michel Ducher
 [michel.ducher@chu-lyon.fr](mailto:michel.ducher@chu-lyon.fr)
@@ -47,6 +51,6 @@ This program is free software: you can redistribute it and/or modify it under th
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-The GNU General Public License is available at http://www.gnu.org/licenses/
+The GNU General Public License is available at https://gnu.org/licenses/
 
 The source code can be found at https://github.com/oliviermfmartin/zebu

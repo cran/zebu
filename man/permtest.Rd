@@ -4,16 +4,21 @@
 \alias{permtest}
 \title{Permutation test for local and global association measures}
 \usage{
-permtest(x, group = as.list(colnames(x$data$pp)), nb = 1000L,
-  p_adjust = "BH", progress_bar = FALSE)
+permtest(
+  x,
+  group = as.list(colnames(x$data$pp)),
+  nb = 1000L,
+  p_adjust = "BH",
+  progress_bar = FALSE
+)
 }
 \arguments{
 \item{x}{\code{\link[zebu]{lassie}} S3 object.}
 
 \item{group}{list of column names specifying which columns
 should be permuted together. This is useful for the multivariate case,
-for example, when there is many dependant variables and one
-independant variable. By default, permutes all columns separetely.}
+for example, when there is many dependent variables and one
+independent variable. By default, permutes all columns separately.}
 
 \item{nb}{number of resampling iterations.}
 
@@ -39,11 +44,12 @@ Permutation test: statistical significance of local and
 global association measures
 }
 \examples{
+
 # Calling lassie on cars dataset
 las <- lassie(cars)
 
 # Permutation test using default settings
-permtest(las)
+permtest(las, nb = 30) # keep resampling low for example
 
 }
 \seealso{
