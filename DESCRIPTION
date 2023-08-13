@@ -1,8 +1,8 @@
 Package: zebu
 Type: Package
 Title: Local Association Measures
-Version: 0.2.0.0
-Date: 2022-12-02
+Version: 0.2.1.0
+Date: 2023-07-20
 Authors@R: c(
 	person("Olivier M. F.", "Martin", email = "oliviermfmartin@tutanota.com", role = c("aut", "cre")),
     person("Michel", "Ducher", email = "michel.ducher@chu-lyon.fr", role = "aut"))
@@ -19,10 +19,10 @@ Suggests: knitr, rmarkdown, markdown, devtools, usethis, svs, pbapply,
 LinkingTo: Rcpp
 Encoding: UTF-8
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 Config/testthat/edition: 3
 Depends: R (>= 2.10)
 NeedsCompilation: yes
-Packaged: 2022-04-17 10:32:35 UTC; olivier
+Packaged: 2023-07-20 19:56:18 UTC; olivier
 Repository: CRAN
-Date/Publication: 2022-04-17 16:30:02 UTC
+Date/Publication: 2023-08-13 14:20:02 UTC
